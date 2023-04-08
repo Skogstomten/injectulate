@@ -8,6 +8,5 @@ class Singleton(type):
 
 
 class Container(metaclass=Singleton):
-    @classmethod
-    def get(cls):
-        return Container()
+    def get(self, type_to_create, *args, **kwargs):
+        return type_to_create(*args, **kwargs)
