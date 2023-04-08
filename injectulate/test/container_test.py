@@ -1,4 +1,4 @@
-from ..container import Container
+from injectulate import Container
 
 
 def test_container_can_be_created():
