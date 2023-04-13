@@ -1,39 +1,31 @@
-from injectulate import Container
+from pytest import fixture
+
+from .. import Container
 
 
-def test_container_can_be_created():
-    container = Container()
-    assert container is not None
-    assert isinstance(container, Container)
+@fixture
+def target():
+    return Container()
 
 
-def test_multiple_containers_are_the_same_container():
-    c1 = Container()
-    c2 = Container()
-    assert c1 == c2
+def test_can_get_simple_class(target):
+    class SimpleClass:
+        pass
+
+    assert isinstance(target.get(SimpleClass), SimpleClass)
 
 
-class SimpleClass:
-    pass
+def test_can_get_instance_of_self(target):
+    result = target.get(Container)
+    assert isinstance(result, Container)
+    assert result == target
 
 
-def test_container_can_create_test_class():
-    target = Container()
-    result = target.get(SimpleClass)
-    assert isinstance(result, SimpleClass)
+def test_can_get_class_with_dependency_on_container(target):
+    class ClassWithDependencyOnContainer:
+        def __init__(self, container: Container):
+            self.container = container
 
-
-class ClassWithPrimitiveConstructorParameters:
-    def __init__(self, an_int, a_str):
-        assert isinstance(an_int, int)
-        assert isinstance(a_str, str)
-        self.an_int = an_int
-        self.a_str = a_str
-
-
-def test_can_create_class_and_pass_parameters():
-    target = Container()
-    result = target.get(ClassWithPrimitiveConstructorParameters, 2, "stuff")
-    assert isinstance(result, ClassWithPrimitiveConstructorParameters)
-    assert result.an_int == 2
-    assert result.a_str == "stuff"
+    result = target.get(ClassWithDependencyOnContainer)
+    assert isinstance(result, ClassWithDependencyOnContainer)
+    assert result.container == target
