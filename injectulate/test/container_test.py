@@ -29,3 +29,16 @@ def test_can_get_class_with_dependency_on_container(target):
     result = target.get(ClassWithDependencyOnContainer)
     assert isinstance(result, ClassWithDependencyOnContainer)
     assert result.container == target
+
+
+def test_can_get_class_with_other_class_dependency(target):
+    class SimpleClass:
+        pass
+
+    class ClassWithDependency:
+        def __init__(self, dependency: SimpleClass):
+            self.dependency = dependency
+
+    result = target.get(ClassWithDependency)
+    assert isinstance(result, ClassWithDependency)
+    assert isinstance(result.dependency, SimpleClass)
