@@ -1,11 +1,18 @@
+from abc import ABCMeta
+
 from pytest import fixture
 
-from .. import Container
+from .. import Container, Builder
 
 
 @fixture
-def target():
-    return Container()
+def target(builder) -> Container:
+    return builder.build()
+
+
+@fixture
+def builder() -> Builder:
+    return Builder()
 
 
 def test_can_get_simple_class(target):
@@ -42,3 +49,15 @@ def test_can_get_class_with_other_class_dependency(target):
     result = target.get(ClassWithDependency)
     assert isinstance(result, ClassWithDependency)
     assert isinstance(result.dependency, SimpleClass)
+
+
+def test_can_get_implementation_of_abstract_class(builder):
+    class AbstractClass(metaclass=ABCMeta):
+        pass
+
+    class Implementation(AbstractClass):
+        pass
+
+    builder.bind(AbstractClass).to(Implementation)
+    target = builder.build()
+    assert isinstance(target.get(AbstractClass), Implementation)
