@@ -1,8 +1,9 @@
 from abc import ABCMeta
 
-from pytest import fixture
+from pytest import fixture, raises
 
 from .. import Container, Builder
+from ..errors import TypeAnnotationError
 
 
 @fixture
@@ -61,3 +62,12 @@ def test_can_get_implementation_of_abstract_class(builder):
     builder.bind(AbstractClass).to(Implementation)
     target = builder.build()
     assert isinstance(target.get(AbstractClass), Implementation)
+
+
+def test_class_with_dependency_missing_type_throws_type_annotation_error(target):
+    class SomeClass:
+        def __init__(self, dependency):
+            self.dependency = dependency
+
+    with raises(TypeAnnotationError):
+        target.get(SomeClass)
