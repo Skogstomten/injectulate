@@ -1,5 +1,6 @@
 from inspect import signature, Signature, Parameter
 from typing import Sequence, Dict, Type, TypeVar
+from .errors import TypeAnnotationError
 
 
 class BindingDefinition:
@@ -7,7 +8,7 @@ class BindingDefinition:
         self.cls = cls
 
     def resolve(self, container: "Container"):
-        return self.cls(*_Resolver(signature(self.cls.__init__), container).resolve())
+        return self.cls(*_Resolver(signature(self.cls.__init__), container, self.cls).resolve())
 
 
 class BindingContext:
@@ -32,26 +33,35 @@ class Builder:
 
 
 class _Resolver:
-    def __init__(self, sig: Signature, container: "Container"):
-        self._sig = sig
-        self._container = container
+    def __init__(self, sig: Signature, container: "Container", resolution_type: Type):
+        self.sig = sig
+        self.container = container
+        self.resolution_type = resolution_type
 
     def resolve(self) -> Sequence:
         resolved_arguments = []
-        for parameter in self._sig.parameters.values():
+        for parameter in self.sig.parameters.values():
             match parameter:
                 case Parameter(name="self") | Parameter(name="args") | Parameter(name="kwargs"):
                     continue
-                case Parameter() as p if p.annotation in self._container.binding_definitions:
+                case Parameter() as p if p.annotation in self.container.binding_definitions:
                     resolved_arguments.append(
-                        self._container.binding_definitions[parameter.annotation].resolve(self._container)
+                        self.container.binding_definitions[parameter.annotation].resolve(self.container)
+                    )
+                case Parameter(annotation=Parameter.empty):
+                    raise TypeAnnotationError(
+                        "Parameter '{}' of type '{}' is missing type annotation and can not be resolved.".format(
+                            parameter.name, self.resolution_type
+                        )
                     )
                 case Parameter() as p if p.annotation == Container:
-                    resolved_arguments.append(self._container)
+                    resolved_arguments.append(self.container)
                 case _:
                     resolved_arguments.append(
                         parameter.annotation(
-                            *_Resolver(signature(parameter.annotation.__init__), self._container).resolve()
+                            *_Resolver(
+                                signature(parameter.annotation.__init__), self.container, parameter.annotation
+                            ).resolve()
                         )
                     )
         return resolved_arguments
@@ -78,4 +88,4 @@ class Container:
         if cls in self.binding_definitions:
             return self.binding_definitions[cls].resolve(self)
 
-        return cls(*_Resolver(signature(cls.__init__), self).resolve(), *args, **kwargs)
+        return cls(*_Resolver(signature(cls.__init__), self, cls).resolve(), *args, **kwargs)
