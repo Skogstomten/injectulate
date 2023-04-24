@@ -1,4 +1,4 @@
-from abc import ABCMeta
+from abc import ABC
 
 from pytest import fixture, raises
 
@@ -53,7 +53,7 @@ def test_can_get_class_with_other_class_dependency(target):
 
 
 def test_can_get_implementation_of_abstract_class(builder):
-    class AbstractClass(metaclass=ABCMeta):
+    class AbstractClass(ABC):
         pass
 
     class Implementation(AbstractClass):
@@ -71,3 +71,15 @@ def test_class_with_dependency_missing_type_throws_type_annotation_error(target)
 
     with raises(TypeAnnotationError):
         target.get(SomeClass)
+
+
+def test_can_bind_to_factory_method(builder):
+    class AbstractClass(ABC):
+        pass
+
+    class Implementation(AbstractClass):
+        pass
+
+    builder.bind(AbstractClass).to(lambda c: Implementation())
+    target = builder.build()
+    assert isinstance(target.get(AbstractClass), Implementation)

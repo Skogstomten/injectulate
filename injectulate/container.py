@@ -1,14 +1,34 @@
-from inspect import signature, Signature, Parameter
-from typing import Sequence, Dict, Type, TypeVar
+from inspect import signature, Signature, Parameter, isclass, isfunction
+from typing import Sequence, Dict, Type, TypeVar, Callable, Any
+from abc import ABC, abstractmethod
 from .errors import TypeAnnotationError
 
 
-class BindingDefinition:
+T = TypeVar("T")
+
+
+class BindingDefinition(ABC):
+    @abstractmethod
+    def resolve(self, container: "Container"):
+        ...
+
+
+class TypeBindingDefinition(BindingDefinition):
     def __init__(self, cls: Type):
+        super().__init__()
         self.cls = cls
 
     def resolve(self, container: "Container"):
         return self.cls(*_Resolver(signature(self.cls.__init__), container, self.cls).resolve())
+
+
+class MethodBindingDefinition(BindingDefinition):
+    def __init__(self, func: Callable[["Container"], Any]):
+        super().__init__()
+        self.func = func
+
+    def resolve(self, container: "Container"):
+        return self.func(container)
 
 
 class BindingContext:
@@ -16,13 +36,17 @@ class BindingContext:
         self.bind_this = cls
         self.builder = builder
 
-    def to(self, cls: Type) -> "Builder":
-        self.builder.binding_definitions[self.bind_this] = BindingDefinition(cls)
+    def to(self, bind_to: Type | Callable) -> "Builder":
+        if isclass(bind_to):
+            self.builder.binding_definitions[self.bind_this] = TypeBindingDefinition(bind_to)
+        elif isfunction(bind_to):
+            self.builder.binding_definitions[self.bind_this] = MethodBindingDefinition(bind_to)
         return self.builder
 
 
 class Builder:
     def __init__(self):
+        super().__init__()
         self.binding_definitions: Dict[Type, BindingDefinition] = {}
 
     def build(self) -> "Container":
@@ -65,9 +89,6 @@ class _Resolver:
                         )
                     )
         return resolved_arguments
-
-
-T = TypeVar("T")
 
 
 class Container:
