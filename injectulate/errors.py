@@ -1,0 +1,2 @@
+class TypeAnnotationError(Exception):
+    pass
