@@ -75,11 +75,14 @@ def test_class_with_dependency_missing_type_throws_type_annotation_error(target)
 
 def test_can_bind_to_factory_method(builder):
     class AbstractClass(ABC):
-        pass
+        c: Container
 
     class Implementation(AbstractClass):
-        pass
+        def __init__(self, c: Container):
+            self.c = c
 
-    builder.bind(AbstractClass).to(lambda c: Implementation())
+    builder.bind(AbstractClass).to(lambda c: Implementation(c))
     target = builder.build()
+    result = target.get(AbstractClass)
     assert isinstance(target.get(AbstractClass), Implementation)
+    assert result.c == target
