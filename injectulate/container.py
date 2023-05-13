@@ -1,3 +1,6 @@
+"""The dependency injection container and all it's surroundings."""
+
+
 from inspect import signature, Signature, Parameter, isclass, isfunction
 from typing import Sequence, Dict, Type, TypeVar, Callable, Any
 from abc import ABC, abstractmethod
@@ -8,13 +11,26 @@ T = TypeVar("T")
 
 
 class BindingDefinition(ABC):
+    """Contains the definition of a binding."""
+
     @abstractmethod
     def resolve(self, container: "Container"):
+        """
+        Resolve binding definition into an instance of the bound type.
+
+        :param container: of type injectulate.container.Container
+        :return: Instance of bound type.
+        """
         ...
 
 
 class TypeBindingDefinition(BindingDefinition):
+    """
+    Binding definition for binding a type.
+    """
+
     def __init__(self, cls: Type):
+        """Creates definition."""
         super().__init__()
         self.cls = cls
 
