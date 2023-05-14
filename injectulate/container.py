@@ -21,7 +21,6 @@ class BindingDefinition(ABC):
         :param container: of type injectulate.container.Container
         :return: Instance of bound type.
         """
-        ...
 
 
 class TypeBindingDefinition(BindingDefinition):
@@ -30,7 +29,6 @@ class TypeBindingDefinition(BindingDefinition):
     """
 
     def __init__(self, cls: Type):
-        """Creates definition."""
         super().__init__()
         self.cls = cls
 
@@ -39,6 +37,8 @@ class TypeBindingDefinition(BindingDefinition):
 
 
 class MethodBindingDefinition(BindingDefinition):
+    """Binding definition for binding to a factory method."""
+
     def __init__(self, func: Callable[["Container"], Any]):
         super().__init__()
         self.func = func
@@ -48,11 +48,14 @@ class MethodBindingDefinition(BindingDefinition):
 
 
 class BindingContext:
+    """Part of the fluid binding setup api."""
+
     def __init__(self, cls: Type, builder: "Builder"):
         self.bind_this = cls
         self.builder = builder
 
     def to(self, bind_to: Type | Callable) -> "Builder":
+        """Bind the type to this type or factory method."""
         if isclass(bind_to):
             self.builder.binding_definitions[self.bind_this] = TypeBindingDefinition(bind_to)
         elif isfunction(bind_to):
@@ -61,28 +64,35 @@ class BindingContext:
 
 
 class Builder:
+    """Builder for configuration the container with bindings."""
+
     def __init__(self):
         super().__init__()
         self.binding_definitions: Dict[Type, BindingDefinition] = {}
 
     def build(self) -> "Container":
+        """Creates container with configured binding definitions."""
         return Container(self.binding_definitions)
 
     def bind(self, cls: Type) -> BindingContext:
+        """Bind this type to something..."""
         return BindingContext(cls, self)
 
 
 class _Resolver:
+    """Resolves type into instance of object."""
+
     def __init__(self, sig: Signature, container: "Container", resolution_type: Type):
         self.sig = sig
         self.container = container
         self.resolution_type = resolution_type
 
     def resolve(self) -> Sequence:
+        """Resolves signatures arguments."""
         resolved_arguments = []
         for parameter in self.sig.parameters.values():
             match parameter:
-                case Parameter(name="self") | Parameter(name="args") | Parameter(name="kwargs"):
+                case Parameter(name=("self", "args", "kwargs")):
                     continue
                 case Parameter() as p if p.annotation in self.container.binding_definitions:
                     resolved_arguments.append(
@@ -108,6 +118,11 @@ class _Resolver:
 
 
 class Container:
+    """
+    Dependency injection container. Usage:
+
+    Write when more solidified...
+    """
     def __init__(self, binding_definitions: Dict[Type, BindingDefinition] | None = None):
         self.binding_definitions = binding_definitions or {}
 
