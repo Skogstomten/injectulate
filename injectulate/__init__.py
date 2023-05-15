@@ -1,1 +1,2 @@
-from .container import Container, Builder
+"""Basic dependency injection implementation."""
+

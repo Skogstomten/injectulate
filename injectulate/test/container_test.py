@@ -2,7 +2,7 @@ from abc import ABC
 
 from pytest import fixture, raises
 
-from .. import Container, Builder
+from ..container import Container, Builder
 from ..errors import TypeAnnotationError
 
 
