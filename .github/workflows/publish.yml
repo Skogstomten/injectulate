@@ -23,9 +23,8 @@ jobs:
       - name: Install Pypa build
         run: |
           python3 -m pip install build --user
-          python3 -m pip install --user --upgrade setuptools wheel twine
       - name: Build
-        run: >-
+        run: |
           python3 -m build --sdist --wheel --outdir dist
       - name: publish to PyPi
         uses: pypa/gh-action-pypi-publish@release/v1
