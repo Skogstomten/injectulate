@@ -21,7 +21,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install Pypa build
-        run: >-
+        run: |
           python3 -m pip install build --user
           python3 -m pip install --user --upgrade setuptools wheel twine
       - name: Build
