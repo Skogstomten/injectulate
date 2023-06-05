@@ -10,7 +10,7 @@ jobs:
       matrix:
         python-version: [ "3.11" ]
     environment:
-      name: pypi
+      name: release
       url: https://pypi.org/p/injectulate
     permissions:
       id-token: write
