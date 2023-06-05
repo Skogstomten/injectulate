@@ -15,5 +15,16 @@ jobs:
     permissions:
       id-token: write
     steps:
+      - uses: actions/checkout@v3
+      - name: Set up python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: Install Pypa build
+        run: >-
+          python3 -m pip install build --user
+      - name: Build
+        run: >-
+          python3 -m build --sdist --wheel --outdir dist
       - name: publish to PyPi
         uses: pypa/gh-action-pypi-publish@release/v1
