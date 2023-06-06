@@ -2,8 +2,8 @@ from abc import ABC
 
 from pytest import fixture, raises
 
-from ..container import Container, Builder
-from ..errors import TypeAnnotationError
+from injectulate import Builder, Container
+from injectulate.errors import TypeAnnotationError
 
 
 @fixture

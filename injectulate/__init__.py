@@ -1,2 +1,2 @@
 """Basic dependency injection implementation."""
-from container import Builder, Container # noqa F401
+from injectulate.container import Builder, Container # noqa F401
