@@ -1,12 +1,19 @@
 [project]
 name = "Injectulate"
-version = "0.0.2"
+dynamic = ["version"]
 authors = [
     { name = "Henrik Hjalmarsson", email = "henrik.hjalmarsson.lazy@gmail.com" }
 ]
 description = "Lightweight dependency injection container."
 readme = "README.md"
 requires-python = ">=3.11"
+
+[build-system]
+requires = ["setuptools>=67", "wheel", "setuptools-git-versioning>=1.13.3"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools-git-versioning]
+enabled = true
 
 [project-urls]
 "Homepage" = "https://github.com/Skogstomten/injectulate"

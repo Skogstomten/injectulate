@@ -4,9 +4,6 @@ Lightweight dependency injection framework relying on type annotations for depen
 ## Installation
 `pip install injectulate`
 
-## PyPi
-[PyPi Repository](https://pypi.org/project/Injectulate/)
-
 ## Usage
 
 ### Simple use case
@@ -88,8 +85,5 @@ container = builder.build()
 impl = container.get(AbstractClass)
 ```
 
-## License
-TODO
-
-## Issues & Feature Requests
-TODO
+### Suggestions
+Are welcomed
