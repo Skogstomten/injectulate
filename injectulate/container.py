@@ -92,7 +92,7 @@ class _Resolver:
         resolved_arguments = []
         for parameter in self.sig.parameters.values():
             match parameter:
-                case Parameter(name=("self", "args", "kwargs")):
+                case Parameter(name="self") | Parameter(name="args") | Parameter(name="kwargs"):
                     continue
                 case Parameter() as p if p.annotation in self.container.binding_definitions:
                     resolved_arguments.append(
